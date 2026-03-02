@@ -1,0 +1,15 @@
+{
+  "name": "protrade-admin",
+  "version": "1.0.0",
+  "description": "ProTrade Control Panel",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+}

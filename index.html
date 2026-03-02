@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProTrade 控制中心</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --border: #475569;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --green: #10b981;
+            --red: #ef4444;
+            --blue: #3b82f6;
+            --orange: #f59e0b;
+            --purple: #8b5cf6;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .login-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .login-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-title {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .container { display: none; }
+        .container.logged-in { display: block; }
+        
+        /* 顶部 */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .main-content {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .stat-value.green { color: var(--green); }
+        .stat-value.blue { color: var(--blue); }
+        .stat-value.orange { color: var(--orange); }
+        
+        /* 控制面板 */
+        .control-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .control-item {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .control-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .switch {
+            position: relative;
+            width: 56px;
+            height: 28px;
+            background: var(--border);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .switch.active {
+            background: var(--green);
+        }
+        
+        .switch-dot {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .switch.active .switch-dot {
+            transform: translateX(28px);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-online {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--green);
+        }
+        
+        .status-offline {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--text-secondary);
+        }
+        
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .device-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .device-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+        
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .device-id {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .action-btn.danger {
+            background: var(--red);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content { padding: 16px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .control-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录界面 -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <h1 class="login-title">⚡ ProTrade</h1>
+            <p class="login-subtitle">控制中心</p>
+            <input type="password" class="login-input" id="passwordInput" placeholder="输入管理员密码">
+            <button class="login-btn" onclick="login()">登录</button>
+        </div>
+    </div>
+    
+    <!-- 主界面 -->
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <h1>⚡ ProTrade 控制中心</h1>
+            <div style="color: var(--text-secondary); font-size: 14px;">
+                <span id="apiStatus">🟢 在线</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">在线设备</div>
+                    <div class="stat-value blue" id="onlineCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">交易模式用户</div>
+                    <div class="stat-value green" id="tradingCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">总设备数</div>
+                    <div class="stat-value orange" id="totalCount">0</div>
+                </div>
+            </div>
+            
+            <!-- 全局强制控制 -->
+            <div class="control-section" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(16, 185, 129, 0.1)); border: 2px solid var(--border);">
+                <div class="section-title" style="color: #fff;">
+                    🔴 全局强制控制 <span style="font-size: 12px; color: var(--text-secondary);">(立即影响所有在线设备)</span>
+                </div>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <button onclick="forceAllDevices('trading')" style="flex: 1; min-width: 200px; padding: 20px; background: linear-gradient(135deg, var(--green), #059669); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                        <span style="font-size: 24px;">💰</span>
+                        <span>强制全部切换到交易模式</span>
+                        <span style="font-size: 12px; opacity: 0.8;">所有在线设备立即显示交易界面</span>
+                    </button>
+                    <button onclick="forceAllDevices('fitness')" style="flex: 1; min-width: 200px; padding: 20px; background: linear-gradient(135deg, var(--red), #dc2626); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                        <span style="font-size: 24px;">🏃</span>
+                        <span>强制全部切回健身模式</span>
+                        <span style="font-size: 12px; opacity: 0.8;">所有在线设备立即显示健身界面</span>
+                    </button>
+                </div>
+                <div id="forceStatus" style="margin-top: 16px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 14px; color: var(--text-secondary); display: none;"></div>
+            </div>
+                <div class="section-title">🔐 全局开关控制</div>
+                <div class="control-grid">
+                    <div class="control-item">
+                        <div class="control-label">马甲包显示</div>
+                        <div class="switch-container">
+                            <span id="coverStatus">已启用</span>
+                            <div class="switch active" id="coverSwitch" onclick="toggleSwitch('cover')">
+                                <div class="switch-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-label">交易功能</div>
+                        <div class="switch-container">
+                            <span id="tradingStatus">已禁用</span>
+                            <div class="switch" id="tradingSwitch" onclick="toggleSwitch('trading')">
+                                <div class="switch-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-label">新用户注册</div>
+                        <div class="switch-container">
+                            <span id="registerStatus">已启用</span>
+                            <div class="switch active" id="registerSwitch" onclick="toggleSwitch('register')">
+                                <div class="switch-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 设备列表 -->
+            <div class="control-section">
+                <div class="section-title">📱 活跃设备</div>
+                <div class="device-list" id="deviceList">
+                    <div style="color: var(--text-secondary); text-align: center; padding: 40px;">
+                        暂无设备数据
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">操作成功</div>
+    
+    <script>
+        // API 配置 - 自动检测当前域名
+        const API_BASE = window.location.origin + '/api';
+        let adminToken = localStorage.getItem('pt_admin_token');
+        let currentConfig = {};
+        
+        // 登录
+        function login() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === 'admin123456') {
+                adminToken = password;
+                localStorage.setItem('pt_admin_token', password);
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainContainer').classList.add('logged-in');
+                initDashboard();
+            } else {
+                alert('密码错误');
+            }
+        }
+        
+        // 初始化
+        async function initDashboard() {
+            await fetchConfig();
+            await fetchDevices();
+            setInterval(fetchConfig, 10000);
+            setInterval(fetchDevices, 10000);
+        }
+        
+        // 获取配置
+        async function fetchConfig() {
+            try {
+                const res = await fetch(`${API_BASE}/config`);
+                const data = await res.json();
+                currentConfig = data.config;
+                updateUI(data.config, data.stats);
+            } catch (e) {
+                console.error('获取配置失败:', e);
+                document.getElementById('apiStatus').textContent = '🔴 离线';
+            }
+        }
+        
+        // 获取设备列表
+        async function fetchDevices() {
+            try {
+                const res = await fetch(`${API_BASE}/devices`);
+                const data = await res.json();
+                renderDevices(data.devices || []);
+            } catch (e) {
+                console.error('获取设备失败:', e);
+            }
+        }
+        
+        // 更新UI
+        function updateUI(config, stats) {
+            document.getElementById('coverStatus').textContent = config.coverEnabled ? '已启用' : '已禁用';
+            document.getElementById('coverSwitch').className = 'switch ' + (config.coverEnabled ? 'active' : '');
+            
+            document.getElementById('tradingStatus').textContent = config.tradingEnabled ? '已启用' : '已禁用';
+            document.getElementById('tradingSwitch').className = 'switch ' + (config.tradingEnabled ? 'active' : '');
+            
+            document.getElementById('registerStatus').textContent = config.registerEnabled ? '已启用' : '已禁用';
+            document.getElementById('registerSwitch').className = 'switch ' + (config.registerEnabled ? 'active' : '');
+            
+            if (stats) {
+                document.getElementById('onlineCount').textContent = stats.onlineDevices || 0;
+                document.getElementById('tradingCount').textContent = stats.tradingUsers || 0;
+            }
+        }
+        
+        // 渲染设备列表
+        function renderDevices(devices) {
+            const list = document.getElementById('deviceList');
+            document.getElementById('totalCount').textContent = devices.length;
+            
+            if (devices.length === 0) {
+                list.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 40px;">暂无设备数据</div>';
+                return;
+            }
+            
+            list.innerHTML = devices.map(d => `
+                <div class="device-item">
+                    <div class="device-info">
+                        <div>
+                            <div class="device-id">${d.id}</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">
+                                ${d.model || 'Unknown'} · ${d.location || 'Unknown'}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-badge ${d.online ? 'status-online' : 'status-offline'}">
+                            ${d.online ? '● 在线' : '○ 离线'}
+                        </span>
+                        <span style="margin-left: 8px; font-size: 12px; color: ${d.screenMode === 'trading' ? 'var(--green)' : 'var(--text-secondary)'};">
+                            ${d.screenMode === 'trading' ? '💰 交易中' : '🏃 健身模式'}
+                        </span>
+                    </div>
+                    <div>
+                        <button class="action-btn ${d.screenMode === 'trading' ? 'danger' : ''}" 
+                                onclick="switchDeviceMode('${d.id}', '${d.screenMode === 'trading' ? 'fitness' : 'trading'}')">
+                            ${d.screenMode === 'trading' ? '切回健身' : '开启交易'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 切换开关
+        async function toggleSwitch(type) {
+            const updates = {};
+            if (type === 'cover') updates.coverEnabled = !currentConfig.coverEnabled;
+            if (type === 'trading') updates.tradingEnabled = !currentConfig.tradingEnabled;
+            if (type === 'register') updates.registerEnabled = !currentConfig.registerEnabled;
+            
+            try {
+                const res = await fetch(`${API_BASE}/config`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify(updates)
+                });
+                
+                if (res.ok) {
+                    showToast('设置已更新');
+                    await fetchConfig();
+                } else {
+                    showToast('更新失败');
+                }
+            } catch (e) {
+                showToast('网络错误');
+            }
+        }
+        
+        // 强制切换所有设备
+        async function forceAllDevices(mode) {
+            const modeText = mode === 'trading' ? '交易' : '健身';
+            
+            if (!confirm(`确定要强制所有在线设备切换到${modeText}模式吗？\n\n这将立即影响所有当前在线的用户。`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/devices/force-all`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ mode })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast(`已强制 ${data.affectedCount} 个设备切换到${modeText}模式`);
+                    
+                    // 显示状态
+                    const statusEl = document.getElementById('forceStatus');
+                    statusEl.style.display = 'block';
+                    statusEl.innerHTML = `
+                        <strong>✅ 操作成功</strong><br>
+                        影响设备: ${data.affectedCount} 个<br>
+                        强制模式: ${modeText}<br>
+                        操作时间: ${new Date().toLocaleString()}
+                    `;
+                    
+                    await fetchDevices();
+                } else {
+                    showToast('操作失败: ' + data.error);
+                }
+            } catch (e) {
+                showToast('网络错误: ' + e.message);
+            }
+        }
+            try {
+                const res = await fetch(`${API_BASE}/device/control`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ deviceId, action: 'switchMode', mode })
+                });
+                
+                if (res.ok) {
+                    showToast(`设备已切换到${mode === 'trading' ? '交易' : '健身'}模式`);
+                    await fetchDevices();
+                }
+            } catch (e) {
+                showToast('操作失败');
+            }
+        }
+        
+        // 显示提示
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        // 检查登录状态
+        if (adminToken) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainContainer').classList.add('logged-in');
+            initDashboard();
+        }
+    </script>
+</body>
+</html>
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .header h2 {
+            font-size: 24px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-success {
+            background: var(--green);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--red);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .stat-icon.blue { background: rgba(59, 130, 246, 0.2); }
+        .stat-icon.green { background: rgba(16, 185, 129, 0.2); }
+        .stat-icon.orange { background: rgba(245, 158, 11, 0.2); }
+        .stat-icon.purple { background: rgba(139, 92, 246, 0.2); }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-change {
+            font-size: 13px;
+        }
+        
+        .stat-change.positive { color: var(--green); }
+        .stat-change.negative { color: var(--red); }
+        
+        /* 控制面板 */
+        .control-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .control-item {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .control-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .switch {
+            position: relative;
+            width: 56px;
+            height: 28px;
+            background: var(--border);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .switch.active {
+            background: var(--green);
+        }
+        
+        .switch-dot {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .switch.active .switch-dot {
+            transform: translateX(28px);
+        }
+        
+        .control-status {
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        
+        /* 表格 */
+        .table-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .search-box {
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            width: 300px;
+        }
+        
+        .search-box::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            font-size: 14px;
+        }
+        
+        tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .device-id {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-online {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--green);
+        }
+        
+        .status-offline {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--text-secondary);
+        }
+        
+        .status-trading {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--blue);
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+        
+        /* 配置面板 */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .config-item {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .config-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .config-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .config-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+        
+        /* 页码 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        
+        .page-btn.active {
+            background: var(--blue);
+            color: white;
+            border-color: var(--blue);
+        }
+        
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>⚡ ProTrade</h1>
+            <p>控制中心</p>
+        </div>
+        
+        <nav>
+            <div class="nav-item active" onclick="switchTab('dashboard')">
+                <span class="nav-icon">📊</span>
+                <span>总览</span>
+            </div>
+            
+            <div class="nav-item" onclick="switchTab('devices')">
+                <span class="nav-icon">📱</span>
+                <span>设备管理</span>
+            </div>
+            
+            <div class="nav-item" onclick="switchTab('control')">
+                <span class="nav-icon">🎛️</span>
+                <span>远程控制</span>
+            </div>
+            
+            <div class="nav-item" onclick="switchTab('config')">
+                <span class="nav-icon">⚙️</span>
+                <span>系统配置</span>
+            </div>
+            
+            <div class="nav-item" onclick="switchTab('risk')">
+                <span class="nav-icon">🛡️</span>
+                <span>风控管理</span>
+            </div>
+        </nav>
+    </aside>
+    
+    <!-- 主内容 -->
+    <main class="main-content">
+        <!-- 头部 -->
+        <div class="header">
+            <h2>控制台总览</h2>
+            <div class="header-actions">
+                <button class="btn btn-secondary">刷新数据</button>
+                <button class="btn btn-primary">导出报表</button>
+            </div>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">在线设备</span>
+                    <div class="stat-icon blue">📱</div>
+                </div>
+                <div class="stat-value">1,247</div>
+                <div class="stat-change positive">+12% 较昨日</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">交易模式用户</span>
+                    <div class="stat-icon green">💰</div>
+                </div>
+                <div class="stat-value">856</div>
+                <div class="stat-change positive">+23% 较昨日</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">今日交易量</span>
+                    <div class="stat-icon orange">📈</div>
+                </div>
+                <div class="stat-value">$45.2K</div>
+                <div class="stat-change positive">+8% 较昨日</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">风控拦截</span>
+                    <div class="stat-icon purple">🛡️</div>
+                </div>
+                <div class="stat-value">23</div>
+                <div class="stat-change negative">-5% 较昨日</div>
+            </div>
+        </div>
+        
+        <!-- 全局控制 -->
+        <div class="control-section">
+            <div class="section-title">
+                🔐 全局开关控制
+            </div>
+            
+            <div class="control-grid">
+                <div class="control-item">
+                    <div class="control-label">马甲包显示</div>
+                    <div class="switch-container">
+                        <span id="coverStatus">已启用</span>
+                        <div class="switch active" id="coverSwitch" onclick="toggleSwitch('cover')">
+                            <div class="switch-dot"></div>
+                        </div>
+                    </div>
+                    <div class="control-status">所有用户显示健身界面</div>
+                </div>
+                
+                <div class="control-item">
+                    <div class="control-label">交易功能</div>
+                    <div class="switch-container">
+                        <span id="tradingStatus">已启用</span>
+                        <div class="switch active" id="tradingSwitch" onclick="toggleSwitch('trading')">
+                            <div class="switch-dot"></div>
+                        </div>
+                    </div>
+                    <div class="control-status">用户可以切换到交易模式</div>
+                </div>
+                
+                <div class="control-item">
+                    <div class="control-label">新用户注册</div>
+                    <div class="switch-container">
+                        <span id="registerStatus">已启用</span>
+                        <div class="switch active" id="registerSwitch" onclick="toggleSwitch('register')">
+                            <div class="switch-dot"></div>
+                        </div>
+                    </div>
+                    <div class="control-status">允许新用户注册</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 系统配置 -->
+        <div class="control-section">
+            <div class="section-title">
+                ⚙️ 系统配置
+            </div>
+            
+            <div class="config-grid">
+                <div class="config-item">
+                    <div class="config-label">交易页面URL</div>
+                    <input type="text" class="config-input" id="tradingUrl" value="https://protrade.com/mobile">
+                    <div class="config-desc">用户切换到交易模式时加载的页面</div>
+                </div>
+                
+                <div class="config-item">
+                    <div class="config-label">API接口地址</div>
+                    <input type="text" class="config-input" id="apiUrl" value="https://api.protrade.com/v1">
+                    <div class="config-desc">后端API接口地址</div>
+                </div>
+                
+                <div class="config-item">
+                    <div class="config-label">最小交易金额</div>
+                    <input type="text" class="config-input" id="minAmount" value="$10">
+                    <div class="config-desc">用户最小下单金额</div>
+                </div>
+                
+                <div class="config-item">
+                    <div class="config-label">默认收益率</div>
+                    <input type="text" class="config-input" id="payoutRate" value="87%">
+                    <div class="config-desc">默认预期收益率</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn btn-success" onclick="saveConfig()">保存配置</button>
+            </div>
+        </div>
+        
+        <!-- 设备列表 -->
+        <div class="table-container">
+            <div class="table-header">
+                <span class="section-title" style="margin: 0;">📱 活跃设备列表</span>
+                <input type="text" class="search-box" placeholder="搜索设备ID或用户...">
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>设备ID</th>
+                        <th>用户</th>
+                        <th>地区</th>
+                        <th>状态</th>
+                        <th>模式</th>
+                        <th>最后活跃</th>
+                        <th>余额</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="device-id">A1B2C3D4E5F6</span></td>
+                        <td>User_8847</td>
+                        <td>🇨🇳 中国</td>
+                        <td><span class="status-badge status-online"><span class="status-dot"></span>在线</span></td>
+                        <td><span class="status-badge status-trading">💰 交易中</span></td>
+                        <td>2分钟前</td>
+                        <td>$1,250.00</td>
+                        <td><button class="action-btn" onclick="viewDevice('A1B2C3D4E5F6')">查看</button></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><span class="device-id">B2C3D4E5F6G7</span></td>
+                        <td>User_9921</td>
+                        <td>🇮🇳 印度</td>
+                        <td><span class="status-badge status-online"><span class="status-dot"></span>在线</span></td>
+                        <td>🏃 健身模式</span></td>
+                        <td>5分钟前</td>
+                        <td>$850.00</td>
+                        <td><button class="action-btn" onclick="viewDevice('B2C3D4E5F6G7')">查看</button></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><span class="device-id">C3D4E5F6G7H8</span></td>
+                        <td>User_1156</td>
+                        <td>🇻🇳 越南</td>
+                        <td><span class="status-badge status-offline"><span class="status-dot"></span>离线</span></td>
+                        <td>- -</td>
+                        <td>1小时前</td>
+                        <td>$2,100.00</td>
+                        <td><button class="action-btn" onclick="viewDevice('C3D4E5F6G7H8')">查看</button></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><span class="device-id">D4E5F6G7H8I9</span></td>
+                        <td>User_3382</td>
+                        <td>🇹🇭 泰国</td>
+                        <td><span class="status-badge status-online"><span class="status-dot"></span>在线</span></td>
+                        <td><span class="status-badge status-trading">💰 交易中</span></td>
+                        <td>3分钟前</td>
+                        <td>$3,450.00</td>
+                        <td><button class="action-btn" onclick="viewDevice('D4E5F6G7H8I9')">查看</button></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><span class="device-id">E5F6G7H8I9J0</span></td>
+                        <td>User_7754</td>
+                        <td>🇮🇩 印尼</td>
+                        <td><span class="status-badge status-online"><span class="status-dot"></span>在线</span></td>
+                        <td>🏃 健身模式</span></td>
+                        <td>8分钟前</td>
+                        <td>$520.00</td>
+                        <td><button class="action-btn" onclick="viewDevice('E5F6G7H8I9J0')">查看</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="pagination">
+                <button class="page-btn">‹</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">4</button>
+                <button class="page-btn">5</button>
+                <button class="page-btn">›</button>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Toast 提示 -->
+    <div class="toast" id="toast">配置已更新</div>
+    
+    <script>
+        // 切换开关
+        function toggleSwitch(type) {
+            const switchEl = document.getElementById(type + 'Switch');
+            const statusEl = document.getElementById(type + 'Status');
+            
+            switchEl.classList.toggle('active');
+            
+            if (switchEl.classList.contains('active')) {
+                statusEl.textContent = '已启用';
+                showToast(type === 'cover' ? '马甲包显示已开启' : 
+                         type === 'trading' ? '交易功能已开启' : '新用户注册已开启');
+            } else {
+                statusEl.textContent = '已禁用';
+                showToast(type === 'cover' ? '马甲包显示已关闭' : 
+                         type === 'trading' ? '交易功能已关闭' : '新用户注册已关闭');
+            }
+            
+            // 这里可以添加API调用
+            // fetch('/api/config', { method: 'POST', body: JSON.stringify({ type, enabled: isActive }) })
+        }
+        
+        // 保存配置
+        function saveConfig() {
+            const config = {
+                tradingUrl: document.getElementById('tradingUrl').value,
+                apiUrl: document.getElementById('apiUrl').value,
+                minAmount: document.getElementById('minAmount').value,
+                payoutRate: document.getElementById('payoutRate').value
+            };
+            
+            console.log('保存配置:', config);
+            showToast('配置已保存');
+            
+            // 实际项目中发送API请求
+            // fetch('/api/config/save', { method: 'POST', body: JSON.stringify(config) })
+        }
+        
+        // 查看设备
+        function viewDevice(deviceId) {
+            alert('查看设备: ' + deviceId + '\n\n这里可以:\n- 远程切换模式\n- 查看交易记录\n- 冻结账户\n- 发送通知');
+        }
+        
+        // 切换标签
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+        }
+        
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        // 模拟实时数据更新
+        setInterval(() => {
+            // 更新统计数据
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues[0].textContent = (1200 + Math.floor(Math.random() * 100)).toLocaleString();
+        }, 5000);
+    </script>
+</body>
+</html>
