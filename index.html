@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProTrade 控制中心</title>
+    <title>FitTrack Pro 控制中心</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -104,80 +104,135 @@
             margin-bottom: 24px;
         }
         .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
-        .control-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+        .form-group {
+            margin-bottom: 16px;
         }
-        .control-item {
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .form-input {
+            width: 100%; padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--blue);
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue), #8b5cf6);
+            color: white;
+        }
+        .btn-success {
+            background: var(--green);
+            color: white;
+        }
+        .btn-danger {
+            background: var(--red);
+            color: white;
+        }
+        .btn-large {
+            padding: 20px 40px;
+            font-size: 18px;
+            width: 100%;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .switch-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .switch-btn.fitness {
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            color: white;
+        }
+        .switch-btn.custom {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+        }
+        .switch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .device-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .device-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
             background: var(--bg-card);
             border-radius: 8px;
-            padding: 20px;
         }
-        .control-label { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; }
-        .switch-container { display: flex; align-items: center; justify-content: space-between; }
-        .switch {
-            position: relative; width: 56px; height: 28px;
-            background: var(--border); border-radius: 14px;
-            cursor: pointer; transition: all 0.3s;
+        .device-mode {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
         }
-        .switch.active { background: var(--green); }
-        .switch-dot {
-            position: absolute; top: 2px; left: 2px;
-            width: 24px; height: 24px;
-            background: white; border-radius: 50%;
-            transition: all 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        .device-mode.fitness {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
         }
-        .switch.active .switch-dot { transform: translateX(28px); }
-        .force-section {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(16, 185, 129, 0.1));
-            border: 2px solid var(--border);
+        .device-mode.custom {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
         }
-        .force-btn {
-            flex: 1; min-width: 200px; padding: 20px;
-            border: none; border-radius: 12px;
-            font-size: 18px; font-weight: 600; color: white;
-            cursor: pointer; display: flex;
-            flex-direction: column; align-items: center; gap: 8px;
-        }
-        .force-btn.green { background: linear-gradient(135deg, var(--green), #059669); }
-        .force-btn.red { background: linear-gradient(135deg, var(--red), #dc2626); }
-        .device-list { display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; }
-        .device-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 16px; background: var(--bg-card); border-radius: 8px;
-        }
-        .device-id { font-family: monospace; font-size: 12px; color: var(--text-secondary); }
-        .action-btn { padding: 8px 16px; background: var(--blue); color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; }
         .toast {
-            position: fixed; top: 24px; right: 24px;
-            padding: 16px 24px; background: var(--bg-secondary);
-            border: 1px solid var(--border); border-radius: 8px;
-            display: none; z-index: 1000;
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
         }
-        .toast.show { display: block; animation: slideIn 0.3s ease; }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        .toast.show { display: block; }
     </style>
 </head>
 <body>
-    <!-- 登录界面 -->
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
-            <h1 class="login-title">⚡ ProTrade</h1>
+            <h1 class="login-title">⚡ FitTrack Pro</h1>
             <p style="color: var(--text-secondary); margin-bottom: 24px;">控制中心</p>
             <input type="password" class="login-input" id="passwordInput" placeholder="输入管理员密码">
             <button class="login-btn" onclick="login()">登录</button>
         </div>
     </div>
     
-    <!-- 主界面 -->
     <div class="container" id="mainContainer">
         <div class="header">
-            <h1>⚡ ProTrade 控制中心</h1>
+            <h1>⚡ FitTrack Pro 控制中心</h1>
             <div style="color: var(--text-secondary); font-size: 14px;">
                 <span id="apiStatus">🟢 在线</span>
             </div>
@@ -191,67 +246,51 @@
                     <div class="stat-value blue" id="onlineCount">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">交易模式用户</div>
-                    <div class="stat-value green" id="tradingCount">0</div>
+                    <div class="stat-label">A面用户</div>
+                    <div class="stat-value green" id="fitnessCount">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">总设备数</div>
-                    <div class="stat-value" style="color: var(--orange);" id="totalCount">0</div>
+                    <div class="stat-label">B面用户</div>
+                    <div class="stat-value" style="color: var(--orange);" id="customCount">0</div>
                 </div>
             </div>
             
-            <!-- 全局控制 -->
+            <!-- B面链接配置 -->
             <div class="control-section">
-                <div class="section-title">🔐 全局开关控制</div>
-                <div class="control-grid">
-                    <div class="control-item">
-                        <div class="control-label">马甲包显示</div>
-                        <div class="switch-container">
-                            <span id="coverStatus">已启用</span>
-                            <div class="switch active" id="coverSwitch" onclick="toggleSwitch('cover')"><div class="switch-dot"></div></div>
-                        </div>
-                    </div>
-                    <div class="control-item">
-                        <div class="control-label">交易功能</div>
-                        <div class="switch-container">
-                            <span id="tradingStatus">已禁用</span>
-                            <div class="switch" id="tradingSwitch" onclick="toggleSwitch('trading')"><div class="switch-dot"></div></div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-item">
-                        <div class="control-label">新用户注册</div>
-                        <div class="switch-container">
-                            <span id="registerStatus">已启用</span>
-                            <div class="switch active" id="registerSwitch" onclick="toggleSwitch('register')"><div class="switch-dot"></div></div>
-                        </div>
-                    </div>
+                <div class="section-title">🔗 B面链接配置</div>
+                <div class="form-group">
+                    <label class="form-label">自定义页面 URL</label>
+                    <input type="text" class="form-input" id="customUrl" placeholder="https://example.com">
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                        App的B面将加载此链接
+                    </p>
                 </div>
+                <button class="btn btn-primary" onclick="saveCustomUrl()">保存配置</button>
             </div>
             
-            <!-- 强制切换 -->
-            <div class="control-section force-section">
+            <!-- 一键切换 -->
+            <div class="control-section">
                 <div class="section-title">
-                    🔴 全局强制控制 <span style="font-size: 12px; color: var(--text-secondary);">(立即影响所有在线设备)</span>
+                    🔴 一键切换 A/B 面
+                    <span style="font-size: 12px; color: var(--text-secondary);">(立即影响所有在线设备)</span>
                 </div>
-                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-                    <button class="force-btn green" onclick="forceAll('trading')">
-                        <span style="font-size: 24px;">💰</span>
-                        <span>强制全部切换到交易模式</span>
-                        <span style="font-size: 12px; opacity: 0.8;">所有在线设备立即显示交易界面</span>
+                <div class="btn-grid">
+                    <button class="switch-btn fitness" onclick="forceAll('fitness')">
+                        <span style="font-size: 32px;">🏃</span>
+                        <span style="font-size: 18px; font-weight: 600;">切换到 A 面</span>
+                        <span style="font-size: 12px; opacity: 0.8;">显示健身界面</span>
                     </button>
-                    
-                    <button class="force-btn red" onclick="forceAll('fitness')">
-                        <span style="font-size: 24px;">🏃</span>
-                        <span>强制全部切回健身模式</span>
-                        <span style="font-size: 12px; opacity: 0.8;">所有在线设备立即显示健身界面</span>
+                    <button class="switch-btn custom" onclick="forceAll('custom')">
+                        <span style="font-size: 32px;">🌐</span>
+                        <span style="font-size: 18px; font-weight: 600;">切换到 B 面</span>
+                        <span style="font-size: 12px; opacity: 0.8;">显示自定义页面</span>
                     </button>
                 </div>
             </div>
             
             <!-- 设备列表 -->
             <div class="control-section">
-                <div class="section-title">📱 活跃设备</div>
+                <div class="section-title">📱 在线设备</div>
                 <div class="device-list" id="deviceList">
                     <div style="color: var(--text-secondary); text-align: center; padding: 40px;">暂无设备数据</div>
                 </div>
@@ -262,21 +301,17 @@
     <div class="toast" id="toast">操作成功</div>
     
     <script>
-        // 数据库（使用 localStorage）
-        const DB_KEY = 'protrade_db_v1';
+        const DB_KEY = 'fittrack_db_v1';
         
         function getDB() {
             const data = localStorage.getItem(DB_KEY);
             return data ? JSON.parse(data) : {
                 config: {
-                    coverEnabled: true,
-                    tradingEnabled: false,
-                    registerEnabled: true,
-                    forcedMode: null,
+                    customUrl: '',
                     updatedAt: new Date().toISOString()
                 },
                 devices: {},
-                stats: { onlineDevices: 0, tradingUsers: 0 }
+                stats: { onlineDevices: 0, fitnessUsers: 0, customUsers: 0 }
             };
         }
         
@@ -284,55 +319,57 @@
             localStorage.setItem(DB_KEY, JSON.stringify(db));
         }
         
-        // 登录
         function login() {
             const password = document.getElementById('passwordInput').value;
-            if (password === 'admin123456') {
-                localStorage.setItem('pt_admin_logged_in', 'true');
+            if (password === 'admin123456' || password === 'admin') {
+                localStorage.setItem('ft_admin_logged_in', 'true');
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainContainer').classList.add('logged-in');
+                loadConfig();
                 updateUI();
             } else {
                 alert('密码错误');
             }
         }
         
-        // 检查登录状态
-        if (localStorage.getItem('pt_admin_logged_in') === 'true') {
+        if (localStorage.getItem('ft_admin_logged_in') === 'true') {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContainer').classList.add('logged-in');
+            loadConfig();
         }
         
-        // 更新UI
+        function loadConfig() {
+            const db = getDB();
+            document.getElementById('customUrl').value = db.config.customUrl || '';
+        }
+        
+        function saveCustomUrl() {
+            const url = document.getElementById('customUrl').value.trim();
+            const db = getDB();
+            db.config.customUrl = url;
+            db.config.updatedAt = new Date().toISOString();
+            saveDB(db);
+            showToast('链接已保存');
+        }
+        
         function updateUI() {
             const db = getDB();
             
-            document.getElementById('coverStatus').textContent = db.config.coverEnabled ? '已启用' : '已禁用';
-            document.getElementById('coverSwitch').className = 'switch ' + (db.config.coverEnabled ? 'active' : '');
-            
-            document.getElementById('tradingStatus').textContent = db.config.tradingEnabled ? '已启用' : '已禁用';
-            document.getElementById('tradingSwitch').className = 'switch ' + (db.config.tradingEnabled ? 'active' : '');
-            
-            document.getElementById('registerStatus').textContent = db.config.registerEnabled ? '已启用' : '已禁用';
-            document.getElementById('registerSwitch').className = 'switch ' + (db.config.registerEnabled ? 'active' : '');
-            
-            // 更新统计
             const devices = Object.values(db.devices);
             const onlineDevices = devices.filter(d => {
                 const lastActive = new Date(d.lastActive);
-                return (new Date() - lastActive) < 60000; // 1分钟内活跃
+                return (new Date() - lastActive) < 60000;
             });
-            const tradingUsers = devices.filter(d => d.screenMode === 'trading');
+            const fitnessUsers = devices.filter(d => d.screenMode === 'fitness');
+            const customUsers = devices.filter(d => d.screenMode === 'custom');
             
             document.getElementById('onlineCount').textContent = onlineDevices.length;
-            document.getElementById('tradingCount').textContent = tradingUsers.length;
-            document.getElementById('totalCount').textContent = devices.length;
+            document.getElementById('fitnessCount').textContent = fitnessUsers.length;
+            document.getElementById('customCount').textContent = customUsers.length;
             
-            // 渲染设备列表
             renderDevices(devices);
         }
         
-        // 渲染设备
         function renderDevices(devices) {
             const list = document.getElementById('deviceList');
             
@@ -344,38 +381,20 @@
             list.innerHTML = devices.map(d => `
                 <div class="device-item">
                     <div>
-                        <div class="device-id">${d.id}</div>
+                        <div style="font-family: monospace; font-size: 12px; color: var(--text-secondary);">${d.id}</div>
                         <div style="font-size: 12px; color: var(--text-secondary);">${d.model || 'Unknown'} · 最后活跃: ${new Date(d.lastActive).toLocaleTimeString()}</div>
                     </div>
-                    <div>
-                        <span style="color: ${d.screenMode === 'trading' ? 'var(--green)' : 'var(--text-secondary)'};">
-                            ${d.screenMode === 'trading' ? '💰 交易中' : '🏃 健身模式'}
-                        </span>
-                    </div>
+                    <span class="device-mode ${d.screenMode}">
+                        ${d.screenMode === 'fitness' ? '🏃 A面' : '🌐 B面'}
+                    </span>
                 </div>
             `).join('');
         }
         
-        // 切换开关
-        function toggleSwitch(type) {
-            const db = getDB();
-            
-            if (type === 'cover') db.config.coverEnabled = !db.config.coverEnabled;
-            if (type === 'trading') db.config.tradingEnabled = !db.config.tradingEnabled;
-            if (type === 'register') db.config.registerEnabled = !db.config.registerEnabled;
-            
-            db.config.updatedAt = new Date().toISOString();
-            saveDB(db);
-            
-            updateUI();
-            showToast('设置已更新');
-        }
-        
-        // 强制所有设备切换
         function forceAll(mode) {
-            const modeText = mode === 'trading' ? '交易' : '健身';
+            const modeText = mode === 'fitness' ? 'A面' : 'B面';
             
-            if (!confirm(`确定要强制所有设备切换到${modeText}模式吗？`)) {
+            if (!confirm(`确定要强制所有设备切换到${modeText}吗？`)) {
                 return;
             }
             
@@ -383,7 +402,6 @@
             db.config.forcedMode = mode;
             db.config.forcedAt = new Date().toISOString();
             
-            // 更新所有设备
             Object.keys(db.devices).forEach(id => {
                 db.devices[id].screenMode = mode;
                 db.devices[id].forcedSwitch = true;
@@ -392,11 +410,10 @@
             saveDB(db);
             
             const affectedCount = Object.keys(db.devices).length;
-            showToast(`已强制 ${affectedCount} 个设备切换到${modeText}模式`);
+            showToast(`已强制 ${affectedCount} 个设备切换到${modeText}`);
             updateUI();
         }
         
-        // 显示提示
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
@@ -404,7 +421,6 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
         
-        // 定期更新
         setInterval(updateUI, 5000);
         updateUI();
     </script>
