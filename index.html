@@ -17,6 +17,7 @@
             --red: #ef4444;
             --blue: #3b82f6;
             --orange: #f59e0b;
+            --purple: #8b5cf6;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -79,7 +80,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .main-content { padding: 24px; max-width: 1200px; margin: 0 auto; }
+        .main-content { padding: 24px; max-width: 1400px; margin: 0 auto; }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -96,6 +97,7 @@
         .stat-value { font-size: 32px; font-weight: 700; }
         .stat-value.green { color: var(--green); }
         .stat-value.blue { color: var(--blue); }
+        .stat-value.orange { color: var(--orange); }
         .control-section {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
@@ -103,7 +105,14 @@
             padding: 24px;
             margin-bottom: 24px;
         }
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+        .section-title { 
+            font-size: 18px; 
+            font-weight: 600; 
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         .form-group {
             margin-bottom: 16px;
         }
@@ -113,7 +122,7 @@
             color: var(--text-secondary);
             margin-bottom: 8px;
         }
-        .form-input {
+        .form-input, .form-select {
             width: 100%; padding: 12px 16px;
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -121,9 +130,14 @@
             color: var(--text-primary);
             font-size: 14px;
         }
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             outline: none;
             border-color: var(--blue);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
         }
         .btn {
             padding: 12px 24px;
@@ -145,6 +159,11 @@
         .btn-danger {
             background: var(--red);
             color: white;
+        }
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
         }
         .btn-large {
             padding: 20px 40px;
@@ -178,6 +197,79 @@
         .switch-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        /* URL列表样式 */
+        .url-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .url-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 2fr auto auto;
+            gap: 12px;
+            align-items: center;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .url-item:hover {
+            border-color: var(--blue);
+        }
+        .url-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .url-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .url-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .url-url {
+            font-size: 13px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .url-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        /* 筛选栏 */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-bar .form-input, .filter-bar .form-select {
+            width: auto;
+            min-width: 150px;
+        }
+        /* 添加表单 */
+        .add-form {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .add-form-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--green);
         }
         .device-list {
             display: flex;
@@ -218,13 +310,33 @@
             z-index: 1000;
         }
         .toast.show { display: block; }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-green {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--green);
+        }
+        .badge-blue {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--blue);
+        }
     </style>
 </head>
 <body>
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
             <h1 class="login-title">⚡ FitTrack Pro</h1>
-            <p style="color: var(--text-secondary); margin-bottom: 24px;">控制中心</p>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">控制中心 v2.0</p>
             <input type="password" class="login-input" id="passwordInput" placeholder="输入管理员密码">
             <button class="login-btn" onclick="login()">登录</button>
         </div>
@@ -251,21 +363,87 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">B面用户</div>
-                    <div class="stat-value" style="color: var(--orange);" id="customCount">0</div>
+                    <div class="stat-value orange" id="customCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">B面链接数</div>
+                    <div class="stat-value" style="color: var(--purple);" id="urlCount">0</div>
                 </div>
             </div>
             
-            <!-- B面链接配置 -->
+            <!-- B面链接管理 -->
             <div class="control-section">
-                <div class="section-title">🔗 B面链接配置</div>
-                <div class="form-group">
-                    <label class="form-label">自定义页面 URL</label>
-                    <input type="text" class="form-input" id="customUrl" placeholder="https://example.com">
-                    <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
-                        App的B面将加载此链接
-                    </p>
+                <div class="section-title">
+                    <span>🔗 B面链接管理（按包名+版本号）</span>
+                    <button class="btn btn-success btn-small" onclick="showAddForm()">+ 添加链接</button>
                 </div>
-                <button class="btn btn-primary" onclick="saveCustomUrl()">保存配置</button>
+                
+                <!-- 添加表单 -->
+                <div class="add-form" id="addForm" style="display: none;">
+                    <div class="add-form-title">添加新链接</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">包名 (Package Name) *</label>
+                            <input type="text" class="form-input" id="newPackageName" placeholder="com.example.app">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">版本号 (Version) *</label>
+                            <input type="text" class="form-input" id="newVersion" placeholder="1.0.0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">B面链接 URL *</label>
+                        <input type="text" class="form-input" id="newUrl" placeholder="https://example.com/trading">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备注（可选）</label>
+                        <input type="text" class="form-input" id="newNote" placeholder="例如：主交易站">
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-success" onclick="addUrl()">保存</button>
+                        <button class="btn btn-secondary" onclick="hideAddForm()">取消</button>
+                    </div>
+                </div>
+                
+                <!-- 编辑表单 -->
+                <div class="add-form" id="editForm" style="display: none;">
+                    <div class="add-form-title" style="color: var(--blue);">编辑链接</div>
+                    <input type="hidden" id="editId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">包名</label>
+                            <input type="text" class="form-input" id="editPackageName" readonly style="opacity: 0.6;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">版本号</label>
+                            <input type="text" class="form-input" id="editVersion" readonly style="opacity: 0.6;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">B面链接 URL *</label>
+                        <input type="text" class="form-input" id="editUrl">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备注</label>
+                        <input type="text" class="form-input" id="editNote">
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-primary" onclick="updateUrl()">更新</button>
+                        <button class="btn btn-secondary" onclick="hideEditForm()">取消</button>
+                    </div>
+                </div>
+                
+                <!-- 筛选栏 -->
+                <div class="filter-bar">
+                    <input type="text" class="form-input" id="filterPackage" placeholder="筛选包名..." oninput="renderUrlList()">
+                    <input type="text" class="form-input" id="filterVersion" placeholder="筛选版本号..." oninput="renderUrlList()">
+                    <button class="btn btn-secondary btn-small" onclick="clearFilters()">清除筛选</button>
+                </div>
+                
+                <!-- URL列表 -->
+                <div class="url-list" id="urlList">
+                    <div class="empty-state">暂无B面链接配置</div>
+                </div>
             </div>
             
             <!-- 一键切换 -->
@@ -292,7 +470,7 @@
             <div class="control-section">
                 <div class="section-title">📱 在线设备</div>
                 <div class="device-list" id="deviceList">
-                    <div style="color: var(--text-secondary); text-align: center; padding: 40px;">暂无设备数据</div>
+                    <div class="empty-state">暂无设备数据</div>
                 </div>
             </div>
         </div>
@@ -301,15 +479,31 @@
     <div class="toast" id="toast">操作成功</div>
     
     <script>
-        const DB_KEY = 'fittrack_db_v1';
+        const DB_KEY = 'fittrack_db_v2';
         
         function getDB() {
             const data = localStorage.getItem(DB_KEY);
-            return data ? JSON.parse(data) : {
-                config: {
-                    customUrl: '',
-                    updatedAt: new Date().toISOString()
-                },
+            if (data) {
+                const db = JSON.parse(data);
+                // 迁移旧数据
+                if (!db.urls) db.urls = [];
+                if (db.config && db.config.customUrl && db.urls.length === 0) {
+                    // 将旧配置转换为新格式
+                    db.urls.push({
+                        id: Date.now().toString(),
+                        packageName: 'com.fittrack.pro',
+                        version: '*',
+                        url: db.config.customUrl,
+                        note: '默认配置（从旧版本迁移）',
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                return db;
+            }
+            return {
+                config: { updatedAt: new Date().toISOString() },
+                urls: [],
                 devices: {},
                 stats: { onlineDevices: 0, fitnessUsers: 0, customUsers: 0 }
             };
@@ -325,7 +519,6 @@
                 localStorage.setItem('ft_admin_logged_in', 'true');
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainContainer').classList.add('logged-in');
-                loadConfig();
                 updateUI();
             } else {
                 alert('密码错误');
@@ -335,94 +528,247 @@
         if (localStorage.getItem('ft_admin_logged_in') === 'true') {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContainer').classList.add('logged-in');
-            loadConfig();
         }
         
-        function loadConfig() {
-            const db = getDB();
-            document.getElementById('customUrl').value = db.config.customUrl || '';
+        // 显示/隐藏添加表单
+        function showAddForm() {
+            document.getElementById('addForm').style.display = 'block';
+            document.getElementById('editForm').style.display = 'none';
         }
         
-        function saveCustomUrl() {
-            const url = document.getElementById('customUrl').value.trim();
+        function hideAddForm() {
+            document.getElementById('addForm').style.display = 'none';
+            clearAddForm();
+        }
+        
+        function clearAddForm() {
+            document.getElementById('newPackageName').value = '';
+            document.getElementById('newVersion').value = '';
+            document.getElementById('newUrl').value = '';
+            document.getElementById('newNote').value = '';
+        }
+        
+        // 显示/隐藏编辑表单
+        function showEditForm(id) {
             const db = getDB();
-            db.config.customUrl = url;
-            db.config.updatedAt = new Date().toISOString();
+            const urlItem = db.urls.find(u => u.id === id);
+            if (!urlItem) return;
+            
+            document.getElementById('editId').value = id;
+            document.getElementById('editPackageName').value = urlItem.packageName;
+            document.getElementById('editVersion').value = urlItem.version;
+            document.getElementById('editUrl').value = urlItem.url;
+            document.getElementById('editNote').value = urlItem.note || '';
+            
+            document.getElementById('editForm').style.display = 'block';
+            document.getElementById('addForm').style.display = 'none';
+        }
+        
+        function hideEditForm() {
+            document.getElementById('editForm').style.display = 'none';
+        }
+        
+        // 添加URL
+        function addUrl() {
+            const packageName = document.getElementById('newPackageName').value.trim();
+            const version = document.getElementById('newVersion').value.trim() || '*';
+            const url = document.getElementById('newUrl').value.trim();
+            const note = document.getElementById('newNote').value.trim();
+            
+            if (!packageName || !url) {
+                showToast('包名和URL不能为空', 'error');
+                return;
+            }
+            
+            const db = getDB();
+            db.urls.push({
+                id: Date.now().toString(),
+                packageName,
+                version,
+                url,
+                note,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+            
             saveDB(db);
-            showToast('链接已保存');
+            hideAddForm();
+            renderUrlList();
+            updateUI();
+            showToast('添加成功');
+        }
+        
+        // 更新URL
+        function updateUrl() {
+            const id = document.getElementById('editId').value;
+            const url = document.getElementById('editUrl').value.trim();
+            const note = document.getElementById('editNote').value.trim();
+            
+            if (!url) {
+                showToast('URL不能为空', 'error');
+                return;
+            }
+            
+            const db = getDB();
+            const index = db.urls.findIndex(u => u.id === id);
+            if (index !== -1) {
+                db.urls[index].url = url;
+                db.urls[index].note = note;
+                db.urls[index].updatedAt = new Date().toISOString();
+                saveDB(db);
+                hideEditForm();
+                renderUrlList();
+                showToast('更新成功');
+            }
+        }
+        
+        // 删除URL
+        function deleteUrl(id) {
+            if (!confirm('确定要删除这个链接配置吗？')) return;
+            
+            const db = getDB();
+            db.urls = db.urls.filter(u => u.id !== id);
+            saveDB(db);
+            renderUrlList();
+            updateUI();
+            showToast('删除成功');
+        }
+        
+        // 清除筛选
+        function clearFilters() {
+            document.getElementById('filterPackage').value = '';
+            document.getElementById('filterVersion').value = '';
+            renderUrlList();
+        }
+        
+        // 渲染URL列表
+        function renderUrlList() {
+            const db = getDB();
+            const filterPackage = document.getElementById('filterPackage').value.toLowerCase();
+            const filterVersion = document.getElementById('filterVersion').value.toLowerCase();
+            
+            let filteredUrls = db.urls;
+            if (filterPackage) {
+                filteredUrls = filteredUrls.filter(u => u.packageName.toLowerCase().includes(filterPackage));
+            }
+            if (filterVersion) {
+                filteredUrls = filteredUrls.filter(u => u.version.toLowerCase().includes(filterVersion));
+            }
+            
+            const container = document.getElementById('urlList');
+            if (filteredUrls.length === 0) {
+                container.innerHTML = '<div class="empty-state">暂无符合条件的B面链接配置</div>';
+                return;
+            }
+            
+            container.innerHTML = filteredUrls.map(item => `
+                <div class="url-item">
+                    <div class="url-info">
+                        <span class="url-label">包名</span>
+                        <span class="url-value">${escapeHtml(item.packageName)}</span>
+                    </div>
+                    <div class="url-info">
+                        <span class="url-label">版本号</span>
+                        <span class="url-value">
+                            ${item.version === '*' ? '<span class="badge badge-green">全部版本</span>' : escapeHtml(item.version)}
+                        </span>
+                    </div>
+                    <div class="url-url" title="${escapeHtml(item.url)}">${escapeHtml(item.url)}</div>
+                    <div class="url-info">
+                        ${item.note ? `<span class="url-label">${escapeHtml(item.note)}</span>` : ''}
+                    </div>
+                    <div class="url-actions">
+                        <button class="btn btn-primary btn-small" onclick="showEditForm('${item.id}')">编辑</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteUrl('${item.id}')">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 获取URL（根据包名和版本号）
+        function getUrlForDevice(packageName, version) {
+            const db = getDB();
+            // 先查找精确匹配
+            let match = db.urls.find(u => u.packageName === packageName && u.version === version);
+            // 再查找包名匹配且版本号为*的
+            if (!match) {
+                match = db.urls.find(u => u.packageName === packageName && u.version === '*');
+            }
+            // 最后查找默认配置
+            if (!match && db.urls.length > 0) {
+                match = db.urls[0];
+            }
+            return match ? match.url : '';
+        }
+        
+        function forceAll(mode) {
+            const db = getDB();
+            Object.keys(db.devices).forEach(deviceId => {
+                db.devices[deviceId].mode = mode;
+                db.devices[deviceId].forcedAt = new Date().toISOString();
+            });
+            saveDB(db);
+            showToast(`已强制所有设备切换到${mode === 'fitness' ? 'A' : 'B'}面`);
+            updateUI();
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? 'rgba(239, 68, 68, 0.9)' : 'var(--bg-secondary)';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
         
         function updateUI() {
             const db = getDB();
             
-            const devices = Object.values(db.devices);
-            const onlineDevices = devices.filter(d => {
-                const lastActive = new Date(d.lastActive);
-                return (new Date() - lastActive) < 60000;
-            });
-            const fitnessUsers = devices.filter(d => d.screenMode === 'fitness');
-            const customUsers = devices.filter(d => d.screenMode === 'custom');
+            // 更新统计
+            document.getElementById('onlineCount').textContent = Object.keys(db.devices).length;
+            document.getElementById('fitnessCount').textContent = Object.values(db.devices).filter(d => d.mode === 'fitness').length;
+            document.getElementById('customCount').textContent = Object.values(db.devices).filter(d => d.mode === 'custom').length;
+            document.getElementById('urlCount').textContent = db.urls.length;
             
-            document.getElementById('onlineCount').textContent = onlineDevices.length;
-            document.getElementById('fitnessCount').textContent = fitnessUsers.length;
-            document.getElementById('customCount').textContent = customUsers.length;
+            // 渲染URL列表
+            renderUrlList();
             
-            renderDevices(devices);
-        }
-        
-        function renderDevices(devices) {
-            const list = document.getElementById('deviceList');
-            
+            // 渲染设备列表
+            const deviceList = document.getElementById('deviceList');
+            const devices = Object.entries(db.devices);
             if (devices.length === 0) {
-                list.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 40px;">暂无设备数据</div>';
+                deviceList.innerHTML = '<div class="empty-state">暂无设备数据</div>';
                 return;
             }
             
-            list.innerHTML = devices.map(d => `
+            deviceList.innerHTML = devices.map(([id, device]) => `
                 <div class="device-item">
                     <div>
-                        <div style="font-family: monospace; font-size: 12px; color: var(--text-secondary);">${d.id}</div>
-                        <div style="font-size: 12px; color: var(--text-secondary);">${d.model || 'Unknown'} · 最后活跃: ${new Date(d.lastActive).toLocaleTimeString()}</div>
+                        <div style="font-weight: 500;">${escapeHtml(device.name || '未知设备')}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">
+                            ${escapeHtml(device.packageName || '')} ${escapeHtml(device.version || '')}
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">
+                            最后活跃: ${new Date(device.lastSeen).toLocaleString()}
+                        </div>
                     </div>
-                    <span class="device-mode ${d.screenMode}">
-                        ${d.screenMode === 'fitness' ? '🏃 A面' : '🌐 B面'}
-                    </span>
+                    <span class="device-mode ${device.mode}">${device.mode === 'fitness' ? 'A面' : 'B面'}</span>
                 </div>
             `).join('');
         }
         
-        function forceAll(mode) {
-            const modeText = mode === 'fitness' ? 'A面' : 'B面';
-            
-            if (!confirm(`确定要强制所有设备切换到${modeText}吗？`)) {
-                return;
-            }
-            
-            const db = getDB();
-            db.config.forcedMode = mode;
-            db.config.forcedAt = new Date().toISOString();
-            
-            Object.keys(db.devices).forEach(id => {
-                db.devices[id].screenMode = mode;
-                db.devices[id].forcedSwitch = true;
-            });
-            
-            saveDB(db);
-            
-            const affectedCount = Object.keys(db.devices).length;
-            showToast(`已强制 ${affectedCount} 个设备切换到${modeText}`);
+        // 初始化
+        if (localStorage.getItem('ft_admin_logged_in') === 'true') {
             updateUI();
         }
         
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-        
+        // 定期刷新
         setInterval(updateUI, 5000);
-        updateUI();
     </script>
 </body>
 </html>
